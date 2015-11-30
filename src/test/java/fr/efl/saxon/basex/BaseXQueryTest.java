@@ -30,6 +30,7 @@ import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltTransformer;
 import net.sf.saxon.trans.XPathException;
+import org.apache.commons.io.output.NullOutputStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class BaseXQueryTest {
      */
     @Test
     public void testGetFunctionQName() {
-        System.out.println("getFunctionQName");
+//        System.out.println("getFunctionQName");
         BaseXQuery instance = new BaseXQuery();
         StructuredQName expResult = new StructuredQName("efl-ext", "fr:efl:saxon:extensions", "basex-query");
         StructuredQName result = instance.getFunctionQName();
@@ -96,17 +97,18 @@ public class BaseXQueryTest {
             DocumentBuilder builder = proc.newDocumentBuilder();
             XdmNode docConnect = builder.build(new StreamSource(new ByteArrayInputStream(CONNECT_STRING.getBytes("UTF-8"))));
             XdmNode connect = (XdmNode)docConnect.axisIterator(Axis.DESCENDANT_OR_SELF, new QName("basex")).next();
-            System.err.println("connect is "+connect.getClass().getName());
-            System.err.println("connect is "+connect.getNodeName());
-            System.err.println("connect is "+connect.getNodeKind());
+//            System.err.println("connect is "+connect.getClass().getName());
+//            System.err.println("connect is "+connect.getNodeName());
+//            System.err.println("connect is "+connect.getNodeKind());
             
             xp.setVariable(var, connect);
             xp.setContextItem(docConnect);
             XdmValue result = xp.evaluate();
             SequenceIterator it = result.getUnderlyingValue().iterate();
             Item item = it.next();
+            int count = 1;
             while(item!=null) {
-                System.out.println(item.getClass().getName()+" -> "+item.getStringValue());
+                assertEquals(Integer.toString(count++),item.getStringValue());
                 item=it.next();
             }
             it.close();
@@ -121,7 +123,6 @@ public class BaseXQueryTest {
      */
     @Test
     public void testGetArgumentTypes() {
-        System.out.println("getArgumentTypes");
         BaseXQuery instance = new BaseXQuery();
         SequenceType[] expResult = new SequenceType[] {SequenceType.SINGLE_STRING, SequenceType.SINGLE_ELEMENT_NODE};
         SequenceType[] result = instance.getArgumentTypes();
@@ -135,7 +136,6 @@ public class BaseXQueryTest {
      */
     @Test
     public void testGetResultType() {
-        System.out.println("getResultType");
         SequenceType[] sts = null;
         BaseXQuery instance = new BaseXQuery();
         SequenceType expResult = SequenceType.ANY_SEQUENCE;
@@ -155,8 +155,8 @@ public class BaseXQueryTest {
                 fail("Impossible de charger la XSL");
             }
             XsltTransformer t = compiler.compile(new StreamSource(is)).load();
-            t.setDestination(proc.newSerializer(System.err));
-            t.setInitialContextNode(proc.newDocumentBuilder().build(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("fr/efl/saxon/basex/test1.xsl"))));
+            t.setDestination(proc.newSerializer(new NullOutputStream()));
+            t.setInitialContextNode(proc.newDocumentBuilder().build(new StreamSource(new FileInputStream(new File(new File(System.getProperty("user.dir")),"src/test/resources/test1.xsl")))));
             t.transform();
         } catch (SaxonApiException | FileNotFoundException ex) {
             ex.printStackTrace(System.err);

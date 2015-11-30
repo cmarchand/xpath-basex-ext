@@ -5,7 +5,7 @@
     version="2.0">
     <xsl:output method="xml"/>
     
-    <xsl:variable name="connect" as="elment()"><basex><server>localhost</server><port>1984</port><user>admin</user><password>admin</password></basex></xsl:variable>
+    <xsl:variable name="connect" as="element()"><basex><server>localhost</server><port>1984</port><user>admin</user><password>admin</password></basex></xsl:variable>
 
     <xsl:template match="/">
         <result>

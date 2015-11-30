@@ -73,8 +73,8 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
 
             @Override
             public Sequence call(XPathContext xpc, Sequence[] sqncs) throws XPathException {
-                System.out.println("sqncs[0]: "+sqncs[0].head().getClass().getName());
-                System.out.println("sqncs[1]: "+sqncs[1].head().getClass().getName());
+//                System.out.println("sqncs[0]: "+sqncs[0].head().getClass().getName());
+//                System.out.println("sqncs[1]: "+sqncs[1].head().getClass().getName());
                 String xquery = ((StringValue)sqncs[0].head()).getStringValue();
                 TinyElementImpl basexNode = ((TinyElementImpl)sqncs[1].head());
                 String server=null, port=null, user=null, password=null;
