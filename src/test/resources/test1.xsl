@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-    xmlns:efl-ext="fr:efl:saxon:extensions"
+    xmlns:efl-ext="top:marchand:xml:extfunctions"
     version="2.0">
     <xsl:output method="xml"/>
     

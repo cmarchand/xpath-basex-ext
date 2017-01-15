@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<gaulois-services>
+    <saxon>
+        <extensions>
+            <function>top.marchand.xml.extfunctions.basex.BaseXQuery</function>
+        </extensions>
+    </saxon>
+</gaulois-services>

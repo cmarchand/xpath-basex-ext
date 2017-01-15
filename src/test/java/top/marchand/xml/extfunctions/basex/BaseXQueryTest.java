@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fr.efl.saxon.basex;
+package top.marchand.xml.extfunctions.basex;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.om.StructuredQName;
@@ -30,7 +30,7 @@ import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltTransformer;
 import net.sf.saxon.trans.XPathException;
-import org.apache.commons.io.output.NullOutputStream;
+//import org.apache.commons.io.output.NullOutputStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class BaseXQueryTest {
     public void testGetFunctionQName() {
 //        System.out.println("getFunctionQName");
         BaseXQuery instance = new BaseXQuery();
-        StructuredQName expResult = new StructuredQName("efl-ext", "fr:efl:saxon:extensions", "basex-query");
+        StructuredQName expResult = new StructuredQName("efl-ext", "top:marchand:xml:extfunctions", "basex-query");
         StructuredQName result = instance.getFunctionQName();
         assertEquals(expResult, result);
     }
@@ -151,11 +151,8 @@ public class BaseXQueryTest {
         XsltCompiler compiler = proc.newXsltCompiler();
         try {
             InputStream is = new FileInputStream(new File(new File(System.getProperty("user.dir")),"src/test/resources/test1.xsl"));
-            if(is==null) {
-                fail("Impossible de charger la XSL");
-            }
             XsltTransformer t = compiler.compile(new StreamSource(is)).load();
-            t.setDestination(proc.newSerializer(new NullOutputStream()));
+            t.setDestination(proc.newSerializer(new File("target/generated-test-files/result.xml")));
             t.setInitialContextNode(proc.newDocumentBuilder().build(new StreamSource(new FileInputStream(new File(new File(System.getProperty("user.dir")),"src/test/resources/test1.xsl")))));
             t.transform();
         } catch (SaxonApiException | FileNotFoundException ex) {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fr.efl.saxon.basex;
+package top.marchand.xml.extfunctions.basex;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,16 +22,10 @@ import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StructuredQName;
-import net.sf.saxon.s9api.Axis;
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.XPathCompiler;
-import net.sf.saxon.s9api.XPathExecutable;
-import net.sf.saxon.s9api.XPathSelector;
-import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.s9api.XdmSequenceIterator;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AxisIterator;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
@@ -41,8 +35,10 @@ import org.basex.examples.api.BaseXClient;
 
 /**
  * This class is an extension-function to Saxon.
- * It must be declared by <tt>configuration.registerExtensionFunction(new BaseXQuery());</tt>, or via saxon configuration file
- * ({@see http://www.saxonica.com/documentation9.5/index.html#!configuration/configuration-file})
+ * It must be declared by <tt>configuration.registerExtensionFunction(new BaseXQuery());</tt>,
+ * or via saxon configuration file
+ * (<a href=http://www.saxonica.com/documentation9.7/index.html#!configuration/configuration-file>Saxon documentation</a>).
+ * In gaulois-pipe, it just has to be in the classpath.
  * 
  * Use as :
  * <tt>declare namespace efl-ex = 'fr:efl:saxon:extensions';
@@ -58,7 +54,7 @@ import org.basex.examples.api.BaseXClient;
  * @author ext-cmarchand
  */
 public class BaseXQuery extends ExtensionFunctionDefinition {
-    public static final String EXT_NAMESPACE_URI = "fr:efl:saxon:extensions";
+    public static final String EXT_NAMESPACE_URI = "top:marchand:xml:extfunctions";
     public static final String FUNCTION_NAME = "basex-query";
     public static final String EXT_NS_COMMON_PREFIX = "efl-ext";
 
@@ -73,8 +69,6 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
 
             @Override
             public Sequence call(XPathContext xpc, Sequence[] sqncs) throws XPathException {
-//                System.out.println("sqncs[0]: "+sqncs[0].head().getClass().getName());
-//                System.out.println("sqncs[1]: "+sqncs[1].head().getClass().getName());
                 String xquery = ((StringValue)sqncs[0].head()).getStringValue();
                 TinyElementImpl basexNode = ((TinyElementImpl)sqncs[1].head());
                 String server=null, port=null, user=null, password=null;
