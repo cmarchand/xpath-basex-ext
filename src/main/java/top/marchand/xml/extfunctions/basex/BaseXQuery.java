@@ -1,7 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * This Source Code Form is subject to the terms of 
+ * the Mozilla Public License, v. 2.0. If a copy of 
+ * the MPL was not distributed with this file, You 
+ * can obtain one at https://mozilla.org/MPL/2.0/.
  */
 package top.marchand.xml.extfunctions.basex;
 
@@ -41,7 +42,7 @@ import org.basex.examples.api.BaseXClient;
  * In gaulois-pipe, it just has to be in the classpath.
  * 
  * Use as :
- * <tt>declare namespace efl-ex = 'fr:efl:saxon:extensions';
+ * <tt>declare namespace efl-ex = 'top:marchand:xml:extfunctions';
  * efl-ext:basex-query("for $i in 1 to 10 return &lt;test&gt;{$i}&lt;/test&gt;", 
  *  &lt;basex&gt;
  *      &lt;server&gt;localhost&lt;/server&gt;
