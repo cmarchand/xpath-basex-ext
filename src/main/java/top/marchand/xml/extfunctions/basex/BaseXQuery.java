@@ -8,8 +8,6 @@ package top.marchand.xml.extfunctions.basex;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.transform.stream.StreamSource;
@@ -30,6 +28,7 @@ import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AxisIterator;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
+import net.sf.saxon.type.Type;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
 import org.basex.examples.api.BaseXClient;
@@ -52,7 +51,7 @@ import org.basex.examples.api.BaseXClient;
  *  &lt;/basex&gt;
  * );</tt>
  *      
- * @author ext-cmarchand
+ * @author Christophe Marchand
  */
 public class BaseXQuery extends ExtensionFunctionDefinition {
     public static final String EXT_NAMESPACE_URI = "top:marchand:xml:extfunctions";
@@ -67,35 +66,17 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
     @Override
     public ExtensionFunctionCall makeCallExpression() {
         return new ExtensionFunctionCall() {
-
             @Override
             public Sequence call(XPathContext xpc, Sequence[] sqncs) throws XPathException {
-                String xquery = ((StringValue)sqncs[0].head()).getStringValue();
-                TinyElementImpl basexNode = ((TinyElementImpl)sqncs[1].head());
-                String server=null, port=null, user=null, password=null;
+                String[] args = checkArgs(xpc, sqncs);
+                String xquery = args[0];
+                String server=args[1];
+                String port=args[2];
+                String user=args[3];
+                String password=args[4];
                 Processor proc = new Processor(xpc.getConfiguration());
-                AxisIterator iterator=basexNode.iterateAxis(AxisInfo.CHILD);
-                for(NodeInfo ni = iterator.next(); ni!=null; ni=iterator.next()) {
-                    switch (ni.getLocalPart()) {
-                        case "server":
-                            server = ni.getStringValue();
-                            break;
-                        case "port":
-                            port = ni.getStringValue();
-                            break;
-                        case "user":
-                            user = ni.getStringValue();
-                            break;
-                        case "password":
-                            password = ni.getStringValue();
-                            break;
-                        default:
-                            throw new XPathException("child elements of basex must be server, port, user and password");
-                    }
-                }
                 try {
                     BaseXClient session = new BaseXClient(server, Integer.parseInt(port), user, password);
-                    List<XdmNode> result = new ArrayList<>();
                     DocumentBuilder builder = proc.newDocumentBuilder();
                     BaseXClient.Query query = session.query(xquery);
                     BaseXSequenceIterator it = new BaseXSequenceIterator(query, builder);
@@ -104,20 +85,91 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
                     throw new XPathException(ex);
                 }
             }
+            private String[] checkArgs(XPathContext xpc, Sequence[] sqncs) throws XPathException {
+                if(sqncs.length==2) {
+                    String server=null, port=null, user=null, password=null;
+                    try {
+                        TinyElementImpl basexNode = ((TinyElementImpl)sqncs[1].head());
+                        AxisIterator iterator=basexNode.iterateAxis(AxisInfo.CHILD);
+                        for(NodeInfo ni = iterator.next(); ni!=null; ni=iterator.next()) {
+                            if(ni.getNodeKind()==Type.ELEMENT) {
+                                switch (ni.getLocalPart()) {
+                                    case "server":
+                                        server = ni.getStringValue();
+                                        break;
+                                    case "port":
+                                        port = ni.getStringValue();
+                                        break;
+                                    case "user":
+                                        user = ni.getStringValue();
+                                        break;
+                                    case "password":
+                                        password = ni.getStringValue();
+                                        break;
+                                    default:
+                                        throw new XPathException("child elements of basex must be server, port, user and password");
+                                }
+                            }
+                        }
+                        return new String[] {
+                            ((StringValue)sqncs[0].head()).getStringValue(),
+                            server,
+                            port,
+                            user,
+                            password
+                        };
+                    } catch(ClassCastException ex) {
+                        throw new XPathException("In two prameters signature, second parameter must be a element()");
+                    }
+                } else if(sqncs.length==5) {
+                    try {
+                        return new String[] {
+                            ((StringValue)sqncs[0].head()).getStringValue(),
+                            ((StringValue)sqncs[1].head()).getStringValue(),
+                            ((StringValue)sqncs[2].head()).getStringValue(),
+                            ((StringValue)sqncs[3].head()).getStringValue(),
+                            ((StringValue)sqncs[4].head()).getStringValue()
+                        };
+                    } catch(ClassCastException ex) {
+                        throw new XPathException("in 5 parameters signature, all parameters must be xs:string");
+                    }
+                } else {
+                    throw new XPathException("Illegal number of arguments. "+
+                            "Args are either (xs:string, element(basex)), "+
+                            "or (xs:string, xs:string, xs:string, xs:string, xs:string)");
+                }
+            }
         };
     }
 
     @Override
     public SequenceType[] getArgumentTypes() {
-        return new SequenceType[] {SequenceType.SINGLE_STRING, SequenceType.SINGLE_ELEMENT_NODE};
+        return new SequenceType[] {
+            SequenceType.SINGLE_STRING, 
+            SequenceType.SINGLE_ITEM,
+            SequenceType.OPTIONAL_STRING,
+            SequenceType.OPTIONAL_STRING,
+            SequenceType.OPTIONAL_STRING};
     }
 
     @Override
     public SequenceType getResultType(net.sf.saxon.value.SequenceType[] sts) {
         return SequenceType.ANY_SEQUENCE;
     }
+
+    @Override
+    public int getMinimumNumberOfArguments() {
+        return 2;
+    }
+
+    @Override
+    public int getMaximumNumberOfArguments() {
+        return 5;
+    }
     
-    private class BaseXSequenceIterator implements SequenceIterator, AutoCloseable {
+
+    
+    protected class BaseXSequenceIterator implements SequenceIterator, AutoCloseable {
         private final BaseXClient.Query query;
         private final DocumentBuilder builder;
         
@@ -159,8 +211,7 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
         @Override
         public int getProperties() {
             return 0;
-        }
-        
-    }
-    
+        }   
+    }    
+
 }
