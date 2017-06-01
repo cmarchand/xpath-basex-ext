@@ -79,7 +79,7 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
                     BaseXClient session = new BaseXClient(server, Integer.parseInt(port), user, password);
                     DocumentBuilder builder = proc.newDocumentBuilder();
                     BaseXClient.Query query = session.query(xquery);
-                    BaseXSequenceIterator it = new BaseXSequenceIterator(query, builder);
+                    BaseXSequenceIterator it = new BaseXSequenceIterator(query, builder, session);
                     return new LazySequence(it);
                 } catch(IOException ex) {
                     throw new XPathException(ex);
@@ -172,11 +172,14 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
     protected class BaseXSequenceIterator implements SequenceIterator, AutoCloseable {
         private final BaseXClient.Query query;
         private final DocumentBuilder builder;
+        private final BaseXClient session;
+        private boolean closed = false;
         
-        public BaseXSequenceIterator(BaseXClient.Query query, DocumentBuilder builder) {
+        public BaseXSequenceIterator(BaseXClient.Query query, DocumentBuilder builder, BaseXClient session) {
             super();
             this.query=query;
             this.builder=builder;
+            this.session = session;
         }
 
         @Override
@@ -187,6 +190,7 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
                     XdmNode node = builder.build(source);
                     return node.getUnderlyingNode();
                 } else {
+                    close();
                     return null;
                 }
             } catch(IOException | SaxonApiException ex) {
@@ -196,8 +200,12 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
 
         @Override
         public void close() {
+            if(closed) return;
             try {
+                System.err.println("Closing sequence iterator");
+                closed = true;
                 query.close();
+                session.close();
             } catch (IOException ex) {
                 Logger.getLogger(BaseXQuery.class.getName()).log(Level.SEVERE, null, ex);
             }
