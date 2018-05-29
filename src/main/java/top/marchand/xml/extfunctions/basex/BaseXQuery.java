@@ -212,11 +212,6 @@ public class BaseXQuery extends ExtensionFunctionDefinition {
         }
 
         @Override
-        public SequenceIterator getAnother() throws XPathException {
-            return null;
-        }
-
-        @Override
         public int getProperties() {
             return 0;
         }   

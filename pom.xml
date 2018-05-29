@@ -4,7 +4,7 @@
 
     <groupId>top.marchand.xml.ext-funct</groupId>
     <artifactId>basex</artifactId>
-    <version>1.1.0-RC2</version>
+    <version>1.1.0-98</version>
     <packaging>jar</packaging>
 
     <name>BaseX ext-funct</name>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>9.7.0-14</version>
+            <version>9.8.0-12</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
